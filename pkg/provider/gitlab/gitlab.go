@@ -205,7 +205,7 @@ func (v *Provider) CreateStatus(_ context.Context, event *info.Event, statusOpts
 		Description: gitlab.Ptr(statusOpts.Title),
 	}
 	//nolint: dogsled
-	_, _, _ = v.Client.Commits.SetCommitStatus(event.SourceProjectID, event.SHA, opt)
+	_, _, statusErr := v.Client.Commits.SetCommitStatus(event.SourceProjectID, event.SHA, opt)
 
 	// only add a note when we are on a MR
 	if event.EventType == triggertype.PullRequest.String() ||
@@ -215,7 +215,7 @@ func (v *Provider) CreateStatus(_ context.Context, event *info.Event, statusOpts
 		_, _, err := v.Client.Notes.CreateMergeRequestNote(event.TargetProjectID, event.PullRequestNumber, mopt)
 		return err
 	}
-	return nil
+	return statusErr
 }
 
 func (v *Provider) GetTektonDir(_ context.Context, event *info.Event, path, provenance string) (string, error) {
